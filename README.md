@@ -2,7 +2,7 @@
 
 [![NPM](https://img.shields.io/npm/l/react)](https://github.com/JoelMaciel/BOOK-STORE/blob/dev/LICENCE)
 
-## Deepening the studies of microservices with java and AWS..
+## This microservice will be implemented synchronously, later I will implement it asynchronously in another branch
 
 ### PROJECT UNDER CONSTRUCTION
 
