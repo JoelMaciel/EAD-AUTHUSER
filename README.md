@@ -1,6 +1,6 @@
 # User control microservice
 
-[![NPM](https://github.com/JoelMaciel/EAD-AUTHUSER/blob/dev/LICENCE)
+[![NPM](https://img.shields.io/npm/l/react)](https://github.com/JoelMaciel/EAD-AUTHUSER/blob/dev/LICENCE)
 
 ## This microservice will be implemented synchronously, later I will implement it asynchronously in another branch
 
