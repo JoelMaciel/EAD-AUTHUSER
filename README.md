@@ -1,4 +1,4 @@
-# User control microservice
+# User control microservice involving authorization and authentication.
 
 [![NPM](https://img.shields.io/npm/l/react)](https://github.com/JoelMaciel/EAD-AUTHUSER/blob/dev/LICENCE)
 
