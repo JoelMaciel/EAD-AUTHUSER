@@ -10,6 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -34,6 +38,13 @@ public class UserController {
     @PageableDefault(page = 0, size = 10, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable){
 
         Page<UserModel> userModelPage = userService.findAll(spec ,pageable);
+
+        if(!userModelPage.isEmpty()) {
+            for(UserModel user : userModelPage.toList()) {
+                user.add(linkTo(methodOn(UserController.class).getOneUser(user.getUserId())).withSelfRel());
+            }
+        }
+
         var users = userService.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(userModelPage);
     }
@@ -44,6 +55,9 @@ public class UserController {
         if(!userModelOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         } else {
+            userModelOptional.get().add(linkTo(methodOn(UserController.class)
+                    .getOneUser(userModelOptional.get().getUserId())).withSelfRel());
+
             return ResponseEntity.status(HttpStatus.OK).body(userModelOptional.get());
         }
     }
@@ -73,6 +87,10 @@ public class UserController {
             userModel.setCpf(userDto.getCpf());
             userModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
             userService.save(userModel);
+
+            userModelOptional.get().add(linkTo(methodOn(UserController.class)
+                    .getOneUser(userModelOptional.get().getUserId())).withSelfRel());
+
             return ResponseEntity.status(HttpStatus.OK).body(userModel);
         }
 
@@ -109,6 +127,9 @@ public class UserController {
             userModel.setImageUrl(userDto.getImageUrl());
             userModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
             userService.save(userModel);
+
+            userModel.add(linkTo(methodOn(UserController.class).getOneUser(userModel.getUserId())).withSelfRel());
+
             return ResponseEntity.status(HttpStatus.OK).body(userModel);
         }
     }
