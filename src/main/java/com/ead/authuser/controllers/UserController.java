@@ -97,7 +97,7 @@ public class UserController {
             userModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
             userService.save(userModel);
 
-            log.debug("PUT updaterUser userModel saved {} ", userModel.toString());
+            log.debug("PUT updaterUser userId saved {} ", userModel.getUserId());
             log.info("User updated successfully userId {} ! ", userModel.getUserId());
 
             userModelOptional.get().add(linkTo(methodOn(UserController.class)
@@ -124,7 +124,7 @@ public class UserController {
             userModel.setPassword(userDto.getPassword());
             userModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
             userService.save(userModel);
-            log.debug("PUT updaterPassword userModel saved {} ", userModel.toString());
+            log.debug("PUT updaterPassword userId saved {} ", userModel.getUserId());
             log.info("User updated successfully userId {} ! ", userModel.getPassword());
             return  ResponseEntity.status(HttpStatus.OK).body("Password updated successfully");
         }
@@ -144,7 +144,7 @@ public class UserController {
             userModel.setImageUrl(userDto.getImageUrl());
             userModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
             userService.save(userModel);
-            log.debug("PUT updaterImage userModel saved {} ", userModel.toString());
+            log.debug("PUT updaterImage userId saved {} ", userModel.getUserId());
             log.info("User updated successfully userId {} ! ", userModel.getImageUrl());
 
             userModel.add(linkTo(methodOn(UserController.class).getOneUser(userModel.getUserId())).withSelfRel());
