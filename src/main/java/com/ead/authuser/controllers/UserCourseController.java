@@ -27,7 +27,7 @@ import java.util.UUID;
 public class UserCourseController {
 
     @Autowired
-    CourseClient userClient;
+    CourseClient courseClient;
 
     @Autowired
     UserService userService;
@@ -38,7 +38,7 @@ public class UserCourseController {
     @GetMapping("/users/{userId}/courses")
     public ResponseEntity<Page<CourseDto>> getAllCourseByUser(@PageableDefault(page = 0, size = 10, sort = "courseId",
             direction = Sort.Direction.ASC) Pageable pageable , @PathVariable(value = "userId") UUID userId)  {
-        var  pageCourses = userClient.getAllCourseByUser(userId, pageable);
+        var  pageCourses = courseClient.getAllCourseByUser(userId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(pageCourses);
     }
 
