@@ -68,6 +68,10 @@ public class UserModel extends RepresentationModel<UserModel> implements Seriali
     @OneToMany(mappedBy = "user" , fetch = FetchType.LAZY)
     private Set<UserCourseModel> usersCourses;
 
+    public UserCourseModel converterToUserCourseModel(UUID courseId) {
+        return new UserCourseModel (null, courseId,  this);
+    }
+
 }
 
 
