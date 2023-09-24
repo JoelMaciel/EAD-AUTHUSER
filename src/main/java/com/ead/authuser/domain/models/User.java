@@ -3,7 +3,6 @@ package com.ead.authuser.domain.models;
 import com.ead.authuser.domain.enums.UserStatus;
 import com.ead.authuser.domain.enums.UserType;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,7 +15,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User implements Serializable {
