@@ -7,8 +7,8 @@ spring:
     username: root
     password: root
 
-#  flyway:
-#    locations: classpath:db/migration,classpath:db/testdata
+  flyway:
+    locations: classpath:db/migration,classpath:db/testdata
 
   jpa:
     show-sql: true
