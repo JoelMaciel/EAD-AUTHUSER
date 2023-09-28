@@ -1,6 +1,7 @@
 package com.ead.authuser.api.exceptionhandler;
 
 import com.ead.authuser.domain.exceptions.BusinessException;
+import com.ead.authuser.domain.exceptions.EntityInUseException;
 import com.ead.authuser.domain.exceptions.EntityNotExistsException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -44,6 +45,20 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemType problemType = ProblemType.SYSTEM_ERROR;
         String detail = MSG_GENERIC_ERROR_END_USER;
         ex.printStackTrace();
+
+        Problem problem = createProblemBuilder(status, problemType, detail)
+                .userMessage(detail)
+                .build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+    }
+
+    @ExceptionHandler(EntityInUseException.class)
+    public ResponseEntity<?> handleEntityInUse(EntityInUseException ex, WebRequest request) {
+
+        HttpStatus status = HttpStatus.CONFLICT;
+        ProblemType problemType = ProblemType.ENTITY_IN_USE;
+        String detail = ex.getMessage();
 
         Problem problem = createProblemBuilder(status, problemType, detail)
                 .userMessage(detail)

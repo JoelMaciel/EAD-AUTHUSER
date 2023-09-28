@@ -5,7 +5,4 @@ public class EntityNotExistsException extends BusinessException{
         super(message);
     }
 
-    public EntityNotExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

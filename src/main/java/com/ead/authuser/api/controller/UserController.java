@@ -1,6 +1,6 @@
 package com.ead.authuser.api.controller;
 
-import com.ead.authuser.api.dtos.UserDTO;
+import com.ead.authuser.api.dtos.response.UserDTO;
 import com.ead.authuser.domain.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ public class UserController {
         return userService.findAll();
     }
 
-    @GetMapping("/{userid}")
+    @GetMapping("/{userId}")
     public UserDTO getOneUser(@PathVariable UUID userId) {
         return userService.findById(userId);
     }

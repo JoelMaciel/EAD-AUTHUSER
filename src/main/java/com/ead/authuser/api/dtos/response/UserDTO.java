@@ -1,4 +1,4 @@
-package com.ead.authuser.api.dtos;
+package com.ead.authuser.api.dtos.response;
 
 import com.ead.authuser.domain.enums.UserStatus;
 import com.ead.authuser.domain.enums.UserType;
@@ -8,13 +8,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+//@JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
 @Builder
@@ -23,18 +21,15 @@ public class UserDTO {
     private UUID userId;
     private String username;
     private String email;
+    private String fullName;
     private String cpf;
     private UserStatus userStatus;
     private UserType userType;
     private String phoneNumber;
-
-
-    @CreationTimestamp
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+    private String imageUrl;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime creationDate;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
-    @UpdateTimestamp
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateDate;
 
     public static UserDTO toDTO(User user) {
@@ -43,11 +38,12 @@ public class UserDTO {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .cpf(user.getCpf())
+                .fullName(user.getFullName())
                 .userStatus(user.getUserStatus())
                 .userType(user.getUserType())
                 .phoneNumber(user.getPhoneNumber())
+                .creationDate(user.getCreationDate())
+                .updateDate(user.getUpdateDate())
                 .build();
     }
-
-
 }
