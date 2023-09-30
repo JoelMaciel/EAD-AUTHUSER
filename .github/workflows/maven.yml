@@ -22,7 +22,7 @@ jobs:
     - name: List directory files
       run: |
         ls -la
-        ls -la ./docker
+        ls -la ./src/docker
     - name: Start MySQL
       run: docker-compose -f ./src/docker/docker-compose.yml up -d  
     - name: Build and Run Integration Tests with Maven
