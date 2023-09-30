@@ -20,6 +20,6 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Start MySQL
-      run: docker-compose up -d    
+      run: docker-compose -f ./docker/docker-compose.yml up -d   
     - name: Build and Run Integration Tests with Maven
       run: mvn -B verify --file pom.xml
