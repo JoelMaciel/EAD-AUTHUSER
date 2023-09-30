@@ -19,5 +19,7 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
+    - name: Start MySQL
+      run: docker-compose up -d    
     - name: Build and Run Integration Tests with Maven
       run: mvn -B verify --file pom.xml
