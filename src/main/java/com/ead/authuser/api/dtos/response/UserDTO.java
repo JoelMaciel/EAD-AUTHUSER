@@ -12,7 +12,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-//@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
 @Builder
@@ -42,6 +42,7 @@ public class UserDTO {
                 .userStatus(user.getUserStatus())
                 .userType(user.getUserType())
                 .phoneNumber(user.getPhoneNumber())
+                .imageUrl(user.getImageUrl())
                 .creationDate(user.getCreationDate())
                 .updateDate(user.getUpdateDate())
                 .build();

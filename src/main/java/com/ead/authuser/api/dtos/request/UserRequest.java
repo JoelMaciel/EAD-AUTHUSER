@@ -1,19 +1,17 @@
 package com.ead.authuser.api.dtos.request;
 
 import com.ead.authuser.domain.models.User;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.hibernate.validator.constraints.br.CPF;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
+@Builder(toBuilder = true)
 public class UserRequest {
 
     @NotBlank
