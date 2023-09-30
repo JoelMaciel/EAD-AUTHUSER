@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
                     .updateDate(LocalDateTime.now())
                     .build();
 
-            return UserDTO.toDTO(userRepository.save(user));
+        return UserDTO.toDTO(userRepository.save(user));
 
     }
 
