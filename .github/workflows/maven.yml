@@ -19,6 +19,10 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
+    - name: List directory files
+      run: |
+        ls -la
+        ls -la ./docker
     - name: Start MySQL
       run: docker-compose -f ./docker/docker-compose.yml up -d   
     - name: Build and Run Integration Tests with Maven
