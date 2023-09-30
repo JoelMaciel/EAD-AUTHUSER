@@ -24,6 +24,6 @@ jobs:
         ls -la
         ls -la ./docker
     - name: Start MySQL
-      run: docker-compose -f ./docker/docker-compose.yml up -d   
+      run: docker-compose -f ./src/docker/docker-compose.yml up -d  
     - name: Build and Run Integration Tests with Maven
       run: mvn -B verify --file pom.xml
