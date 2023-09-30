@@ -19,10 +19,10 @@ public class UserValidationStrategyImpl implements UserValidationStrategy {
     public void validate(UserRequest request) {
         existsByCpf(request.getCpf());
         existsByEmail(request.getEmail());
-        existsByUerName(request.getUsername());
+        existsByUserName(request.getUsername());
     }
 
-    private void existsByUerName(String username) {
+    private void existsByUserName(String username) {
         if (userRepository.existsByUsername(username)) {
             throw new UsernameAlreadyExistsException(username);
         }
