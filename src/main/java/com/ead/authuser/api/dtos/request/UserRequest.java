@@ -25,7 +25,6 @@ public class UserRequest {
 
     @NotBlank
     private String password;
-    private String oldPassword;
 
     @NotBlank
     private String fullName;
