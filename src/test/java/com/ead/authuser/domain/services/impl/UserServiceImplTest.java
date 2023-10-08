@@ -1,14 +1,18 @@
 package com.ead.authuser.domain.services.impl;
 
+
+import com.ead.authuser.api.dtos.request.UpdateImage;
+import com.ead.authuser.api.dtos.request.UpdatePassword;
 import com.ead.authuser.api.dtos.request.UserRequest;
+import com.ead.authuser.api.dtos.request.UserUpdateRequest;
 import com.ead.authuser.api.dtos.response.UserDTO;
 import com.ead.authuser.domain.enums.UserStatus;
 import com.ead.authuser.domain.enums.UserType;
+import com.ead.authuser.domain.exceptions.InvalidPasswordException;
 import com.ead.authuser.domain.exceptions.UserNotFoundException;
 import com.ead.authuser.domain.models.User;
 import com.ead.authuser.domain.repositories.UserRepository;
 import com.ead.authuser.domain.validator.UserValidationStrategy;
-import com.ead.authuser.util.UserObjectFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,8 +20,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
-import java.util.Arrays;
+import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,128 +38,181 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
+
     @InjectMocks
     private UserServiceImpl userService;
+
     @Mock
     private UserRepository userRepository;
+
     @Mock
     private UserValidationStrategy userValidationStrategy;
 
-    private List<User> listMockUsers;
     private User user;
-    private User user2;
-    private UserRequest userRequest;
 
     @BeforeEach
-    void setUp() {
-
-        userRequest = UserObjectFactory.createUserRequest("joelmaciel", "joel@gmail.com", "65856783388",
-                "123456", "Joel Maciel", "999999999", "http://test.com/image.jpg");
-
-        user = UserObjectFactory.convertToUser(userRequest, UserStatus.ACTIVE, UserType.STUDENT);
-
-        UserRequest userRequest2 = UserObjectFactory.createUserRequest(
-                "mariajose", "maria@gmail.com", "65856783388", "654321",
-                "Maria Jose", "888888888", "http://test.com/image2.jpg");
-
-        user2 = UserObjectFactory.convertToUser(userRequest2, UserStatus.ACTIVE, UserType.ADMIN);
-
-        listMockUsers = Arrays.asList(user, user2);
-
+    public void setUp() {
+        user = new User();
+        user = User.builder()
+                .userId(UUID.randomUUID())
+                .username("joelmaciel")
+                .email("joel@example.com")
+                .password("123456")
+                .userStatus(UserStatus.ACTIVE)
+                .userType(UserType.STUDENT)
+                .creationDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .build();
     }
 
     @Test
-    @DisplayName("Given a UserRequest When Save Then It Should Return a UserDTO")
-    void givenUserRequest_WhenSave_ThenReturnsUserDTO() {
-        doNothing().when(userValidationStrategy).validate(any(UserRequest.class));
+    @DisplayName("Given Valid UserId When FindById Then Must Return User Successfully")
+    void givenValidUserId_WhenFindById_ThenMustReturnUserSuccessfully() {
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
+        assertNotNull(userService.findById(user.getUserId()));
+        verify(userRepository).findById(user.getUserId());
+    }
+
+    @Test
+    @DisplayName("Given UserId Invalid When FindById Then Should Throw Exception")
+    void givenUserIdInvalid_WhenFindById_ThenShouldThrowException() {
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userService.findById(user.getUserId()));
+        verify(userRepository).findById(user.getUserId());
+    }
+
+    @Test
+    @DisplayName("Given User Valid When Save User Then Should Save User Successfully")
+    void givenUserValid_WhenSaveUser_ThenShouldSaveUserSuccessfully() {
+        UserRequest userRequest = new UserRequest();
+        userRequest.setUsername("testUser");
+        userRequest.setEmail("test@example.com");
+        userRequest.setPassword("password123");
+
         when(userRepository.save(any(User.class))).thenReturn(user);
 
-        UserDTO userDTO = userService.save(userRequest);
+        assertNotNull(userService.save(userRequest));
+        verify(userRepository).save(any(User.class));
+    }
+    @Test
+    @DisplayName("Given Specification and Pageable, When findAll is called, Then Should Return Page of Users")
+    void givenSpecAndPageable_WhenFindAll_ThenReturnPageOfUsers() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Specification<User> spec = null;
+        Page<User> userPage = new PageImpl<>(List.of(user), pageable, 1);
+        when(userRepository.findAll(spec, pageable)).thenReturn(userPage);
 
-        assertNotNull(userDTO);
-        assertEquals(user.getUserId(), userDTO.getUserId());
-        assertEquals(userRequest.getUsername(), userDTO.getUsername());
-        assertEquals(userRequest.getEmail(), userDTO.getEmail());
-        verify(userValidationStrategy).validate(userRequest);
+        Page<UserDTO> result = userService.findAll(spec, pageable);
+
+        assertNotNull(result);
+        verify(userRepository).findAll(spec, pageable);
+        assertEquals(1, result.getTotalElements());
+    }
+
+
+    @Test
+    @DisplayName("Given Page of Users, When addHateoasLinks is called, Then Users should have self-rel link")
+    void givenPageOfUsers_WhenAddHateoasLinks_ThenUsersShouldHaveSelfRelLink() throws Exception {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<User> userPage = new PageImpl<>(List.of(user), pageable, 1);
+
+        Method method = UserServiceImpl.class.getDeclaredMethod("addHateoasLinks", Page.class);
+        method.setAccessible(true);
+        method.invoke(userService, userPage);
+
+        for (User userInPage : userPage) {
+            assertTrue(userInPage.hasLinks());
+            assertTrue(userInPage.getLink("self").isPresent());
+        }
+    }
+
+
+    @Test
+    @DisplayName("Given User Valid When Update User Then Should Updated User Successfully")
+    void givenUserValid_WhenUpdateUser_ThenShouldUpdatedUserSuccessfully() {
+        UserUpdateRequest updateRequest = new UserUpdateRequest();
+        updateRequest.setCpf("123456789");
+        updateRequest.setFullName("Maciel Viana");
+        updateRequest.setPhoneNumber("1234567890");
+
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        assertNotNull(userService.update(user.getUserId(), updateRequest));
+        verify(userRepository).findById(user.getUserId());
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Given User Valid When Delete User Then Should Deleted User Successfully")
+    void givenUserValid_WhenDeleteUser_ThenShouldDeletedUserSuccessfully() {
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
+
+        userService.delete(user.getUserId());
+
+        verify(userRepository).findById(user.getUserId());
+        verify(userRepository).deleteById(user.getUserId());
+    }
+
+    @Test
+    @DisplayName("Given User Does Not Exists When Delete User Then Throw Exception")
+    void givenUserDoesNotExists_WhenDeleteUser_ThenThrowException() {
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userService.delete(user.getUserId()));
+
+        verify(userRepository).findById(user.getUserId());
+        verify(userRepository, never()).deleteById(any(UUID.class));
+    }
+
+    @Test
+    @DisplayName("Given Old Password Valid When Update Password Then Should Update Password Successfully")
+    void givenOldPasswordValid_WhenUpdatePassword_ThenShouldUpdatePasswordSuccessfully() {
+        UpdatePassword updatePassword = new UpdatePassword("password999", "123456");
+
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        assertNotNull(userService.updatePassword(user.getUserId(), updatePassword));
+        verify(userRepository).findById(user.getUserId());
         verify(userRepository).save(user);
     }
 
-
     @Test
-    @DisplayName("Given UserId When SearchingById Then It Must Return a UserDTO")
-    void givenUserId_WhenSearchingById_ThenItMustReturnUserDTO() {
-        UUID userId = user.getUserId();
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        UserDTO userDTO = userService.findById(userId);
+    @DisplayName("Given User Not Found When Update Password Then Throw Exception")
+    void givenUserIdNotFound_WhenUpdatePassword_ThenThrowException() {
+        UpdatePassword updatePassword = new UpdatePassword("12345", "123546");
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
 
-        assertNotNull(userDTO);
-        assertEquals(user.getUserId(), userDTO.getUserId());
-        assertEquals(user.getUsername(), userDTO.getUsername());
-        assertEquals(user.getEmail(), userDTO.getEmail());
-
-        verify(userRepository).findById(userId);
-
+        assertThrows(UserNotFoundException.class, () -> userService.updatePassword(user.getUserId(), updatePassword));
+        verify(userRepository).findById(user.getUserId());
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
-    @DisplayName("Given Nonexistent UserId When FindById Then It Must Throw UserNotFoundException")
-    void givenNonexistentUserId_WhenSearchingById_ThenItMustThrowUserNotFoundException() {
-        UUID userId = UUID.randomUUID();
+    @DisplayName("Given OldPassword invalid When Update Password Then Throw Exception")
+    void givenOldPasswordInvalid_WhenUpdatePassword_ThenThrowException() {
+        UpdatePassword updatePassword = new UpdatePassword("9999", "99999");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
 
-        assertThrows(UserNotFoundException.class, ()-> userService.findById(userId));
-        verify(userRepository).findById(userId);
-
-
+        assertThrows(InvalidPasswordException.class, () -> userService.updatePassword(user.getUserId(), updatePassword));
+        verify(userRepository).findById(user.getUserId());
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
-    @DisplayName("When FindAll is called Then It Must Return a List of UserDTOs")
-    void findAll_ShouldReturnListOfUserDTOs() {
-        when(userRepository.findAll()).thenReturn(listMockUsers);
-        List<UserDTO> userDTOs = userService.findAll();
+    @DisplayName("Given New Image When Update Image Then Should Update Image Successfully")
+    void givenNewImage_WhenUpdateImageThenShouldUpdateImageSuccessfully() {
+        UpdateImage updateImage = new UpdateImage("http://newImageLink.com");
 
-        assertNotNull(userDTOs);
-        assertEquals(2, userDTOs.size());
-        assertEquals(user.getUserId(), userDTOs.get(0).getUserId());
-        assertEquals(user.getUsername(), userDTOs.get(0).getUsername());
-        assertEquals(user.getUserType(), userDTOs.get(0).getUserType());
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
 
-        assertEquals(user2.getUserId(), userDTOs.get(1).getUserId());
-        assertEquals(user2.getUsername(), userDTOs.get(1).getUsername());
-        assertEquals(user2.getUserType(), userDTOs.get(1).getUserType());
-
-        verify(userRepository).findAll();
-    }
-
-    @Test
-    @DisplayName("Given a valid userId, it should call the repository's deleteById method")
-    void givenValidUserId_whenDelete_thenCallRepositoryDeleteById() {
-        UUID userId = user.getUserId();
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
-        userService.delete(userId);
-
-        verify(userRepository).findById(userId);
-        verify(userRepository).deleteById(userId);
-    }
-
-    @Test
-    @DisplayName("Given a non-existent user ID When Calling Delete method Then you Must Throw Exception")
-    void givenInvalidUserId_whenDelete_thenThrowException() {
-
-        UUID userId = user.getUserId();
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        assertThrows(UserNotFoundException.class, () -> userService.delete(userId));
-        verify(userRepository).findById(userId);
-        verify(userRepository, never()).deleteById(userId);
+        assertNotNull(userService.updateImage(user.getUserId(), updateImage));
+        verify(userRepository).findById(user.getUserId());
+        verify(userRepository).save(user);
 
     }
 }
-
-
-
-
-

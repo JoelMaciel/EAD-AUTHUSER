@@ -1,7 +1,6 @@
 package com.ead.authuser.api.dtos.request;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.validator.constraints.br.CPF;
 
 import javax.validation.constraints.NotBlank;
@@ -10,6 +9,9 @@ import javax.validation.constraints.Size;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserUpdateRequest {
 
     @CPF
@@ -20,5 +22,6 @@ public class UserUpdateRequest {
     private String fullName;
     @NotBlank
     private String phoneNumber;
+
 
 }

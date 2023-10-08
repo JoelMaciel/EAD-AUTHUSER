@@ -1,5 +1,6 @@
 package com.ead.authuser.domain.services.impl;
 
+import com.ead.authuser.api.controller.UserController;
 import com.ead.authuser.api.dtos.request.UpdateImage;
 import com.ead.authuser.api.dtos.request.UpdatePassword;
 import com.ead.authuser.api.dtos.request.UserRequest;
@@ -14,14 +15,17 @@ import com.ead.authuser.domain.repositories.UserRepository;
 import com.ead.authuser.domain.services.UserService;
 import com.ead.authuser.domain.validator.UserValidationStrategy;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 @RequiredArgsConstructor
@@ -31,11 +35,11 @@ public class UserServiceImpl implements UserService {
     private final UserValidationStrategy userValidationStrategy;
 
     @Override
-    public List<UserDTO> findAll() {
-        List<User> users = userRepository.findAll();
-        return users.stream()
-                .map(UserDTO::toDTO)
-                .collect(Collectors.toList());
+    public Page<UserDTO> findAll(Specification<User> spec, Pageable pageable) {
+        Page<User> users = userRepository.findAll(spec, pageable);
+        addHateoasLinks(users);
+
+        return users.map(UserDTO::toDTO);
     }
 
     @Override
@@ -81,7 +85,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserDTO updateImagem(UUID userId, UpdateImage updateImage) {
+    public UserDTO updateImage(UUID userId, UpdateImage updateImage) {
         User user = searchById(userId).toBuilder()
                 .imageUrl(updateImage.getImageUrl()).build();
 
@@ -102,6 +106,14 @@ public class UserServiceImpl implements UserService {
             throw new InvalidPasswordException(updatePassword.getOldPassword());
         }
         return user.toBuilder().password(updatePassword.getPassword()).build();
+    }
+
+    private void addHateoasLinks(Page<User> users) {
+        if (!users.isEmpty()) {
+            for (User user : users) {
+                user.add(linkTo(methodOn(UserController.class).getOneUser(user.getUserId())).withSelfRel());
+            }
+        }
     }
 
     public User searchById(UUID userId) {
