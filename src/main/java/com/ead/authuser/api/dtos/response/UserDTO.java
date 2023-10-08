@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,7 +17,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-public class UserDTO {
+public class UserDTO extends RepresentationModel<UserDTO> {
 
     private UUID userId;
     private String username;
@@ -33,7 +34,7 @@ public class UserDTO {
     private LocalDateTime updateDate;
 
     public static UserDTO toDTO(User user) {
-        return UserDTO.builder()
+        UserDTO userDTO = UserDTO.builder()
                 .userId(user.getUserId())
                 .username(user.getUsername())
                 .email(user.getEmail())
@@ -46,5 +47,8 @@ public class UserDTO {
                 .creationDate(user.getCreationDate())
                 .updateDate(user.getUpdateDate())
                 .build();
+
+        userDTO.add(user.getLinks());
+        return userDTO;
     }
 }

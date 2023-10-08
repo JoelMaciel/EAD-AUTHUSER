@@ -5,12 +5,15 @@ import com.ead.authuser.api.dtos.request.UpdatePassword;
 import com.ead.authuser.api.dtos.request.UserRequest;
 import com.ead.authuser.api.dtos.request.UserUpdateRequest;
 import com.ead.authuser.api.dtos.response.UserDTO;
+import com.ead.authuser.domain.models.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    List<UserDTO> findAll();
+    Page<UserDTO> findAll(Specification<User> spec, Pageable pageable);
 
     UserDTO findById(UUID userId);
 
@@ -22,5 +25,5 @@ public interface UserService {
 
     UserDTO updatePassword(UUID userId, UpdatePassword updatePassword);
 
-    UserDTO updateImagem(UUID userId, UpdateImage updateImage);
+    UserDTO updateImage(UUID userId, UpdateImage updateImage);
 }
