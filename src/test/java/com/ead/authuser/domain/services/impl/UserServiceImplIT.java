@@ -59,7 +59,7 @@ class UserServiceImplIT {
         Pageable pageable = PageRequest.of(0, 10);
         Specification<User> spec = null;
 
-        int numbersUsers = 9;
+        int numbersUsers = 12;
         Page<UserDTO> resultPage = userService.findAll(spec, pageable);
         assertFalse(resultPage.isEmpty());
         assertEquals(numbersUsers, resultPage.getTotalElements());
