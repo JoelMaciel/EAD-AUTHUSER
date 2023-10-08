@@ -4,13 +4,17 @@ import com.ead.authuser.api.dtos.request.UpdateImage;
 import com.ead.authuser.api.dtos.request.UpdatePassword;
 import com.ead.authuser.api.dtos.request.UserUpdateRequest;
 import com.ead.authuser.api.dtos.response.UserDTO;
+import com.ead.authuser.api.specification.SpecificationTemplate;
 import com.ead.authuser.domain.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,8 +25,9 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<UserDTO> getAllUsers() {
-        return userService.findAll();
+    public Page<UserDTO> getAllUsers(SpecificationTemplate.UserSpec spec, @PageableDefault(page = 0, size = 10, sort = "userId",
+            direction = Sort.Direction.ASC) Pageable pageable) {
+        return userService.findAll(spec, pageable);
     }
 
     @GetMapping("/{userId}")
@@ -31,7 +36,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public UserDTO updateUser(@PathVariable UUID userId, @Valid @RequestBody  UserUpdateRequest userRequest) {
+    public UserDTO updateUser(@PathVariable UUID userId, @Valid @RequestBody UserUpdateRequest userRequest) {
         return userService.update(userId, userRequest);
     }
 
@@ -44,7 +49,7 @@ public class UserController {
     @PutMapping("/{userId}/image")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public UserDTO updateImage(@PathVariable UUID userId, @RequestBody @Valid UpdateImage updateImage) {
-        return userService.updateImagem(userId, updateImage);
+        return userService.updateImage(userId, updateImage);
     }
 
     @DeleteMapping("/{userId}")
