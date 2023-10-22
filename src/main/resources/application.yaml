@@ -1,3 +1,13 @@
 spring:
   profiles:
-    active: test
+    active: dev
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+
+  output:
+    ansi:
+      enabled: ALWAYS
+

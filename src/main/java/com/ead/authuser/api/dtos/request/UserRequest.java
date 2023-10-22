@@ -1,7 +1,10 @@
 package com.ead.authuser.api.dtos.request;
 
 import com.ead.authuser.domain.models.User;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.br.CPF;
 
 import javax.validation.constraints.NotBlank;
@@ -9,8 +12,7 @@ import javax.validation.constraints.NotNull;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 @Builder(toBuilder = true)
 public class UserRequest {
 
