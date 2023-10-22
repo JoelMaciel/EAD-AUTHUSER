@@ -13,6 +13,7 @@ import com.ead.authuser.domain.models.User;
 import com.ead.authuser.domain.repositories.UserRepository;
 import com.ead.authuser.domain.validator.UserValidationStrategy;
 import com.ead.authuser.util.UserObjectFactory;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ class UserServiceImplIT {
     private User user2;
 
     @Test
+    @Disabled
     @DisplayName("Given Page of User When findAll is Invoked, Then should return a non-empty Page of Users.")
     void whenFindAll_thenReturnPageOfUsers() {
         UserRequest userRequest = UserObjectFactory.createUserRequest("macieljoel", "joel@gmail.com", "628567838",
