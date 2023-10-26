@@ -13,7 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.UUID;
 
 public interface UserService {
-    Page<UserDTO> findAll(Specification<User> spec, Pageable pageable);
+    Page<UserDTO> findAll(Specification<User> spec, Pageable pageable, UUID courseId);
 
     UserDTO findById(UUID userId);
 

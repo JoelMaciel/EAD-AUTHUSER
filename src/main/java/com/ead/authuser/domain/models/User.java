@@ -2,7 +2,7 @@ package com.ead.authuser.domain.models;
 
 import com.ead.authuser.domain.enums.UserStatus;
 import com.ead.authuser.domain.enums.UserType;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
@@ -12,6 +12,7 @@ import org.springframework.hateoas.RepresentationModel;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -25,46 +26,31 @@ public class User extends RepresentationModel<User> implements Serializable {
 
     @Id
     @EqualsAndHashCode.Include
-    @Type(type="uuid-char")
+    @Type(type = "uuid-char")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID userId;
-
-    @Column
     private String username;
-
-    @Column
     private String email;
-
-    @Column
     private String password;
-
-    @Column
     private String fullName;
 
-    @Column
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
 
-    @Column
     @Enumerated(EnumType.STRING)
     private UserType userType;
 
-    @Column
     private String phoneNumber;
-
-    @Column
     private String cpf;
-
-    @Column
     private String imageUrl;
 
-    @Column
     @CreationTimestamp
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone = "UTC")
     private LocalDateTime creationDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone = "UTC")
-    @Column
     @UpdateTimestamp
     private LocalDateTime updateDate;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private Set<UserCourse> usersCourses;
 }

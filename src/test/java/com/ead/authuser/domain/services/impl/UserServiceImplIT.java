@@ -47,6 +47,7 @@ class UserServiceImplIT {
     @Disabled
     @DisplayName("Given Page of User When findAll is Invoked, Then should return a non-empty Page of Users.")
     void whenFindAll_thenReturnPageOfUsers() {
+        UUID courseId = UUID.fromString(("70754308-6ba1-469c-8de8-c3e7e28dc404"));
         UserRequest userRequest = UserObjectFactory.createUserRequest("macieljoel", "joel@gmail.com", "628567838",
                 "123456", "Joel Maciel", "999999999", "http://test.com/image.jpg");
         User user = UserObjectFactory.convertToUser(userRequest, UserStatus.ACTIVE, UserType.STUDENT);
@@ -61,8 +62,8 @@ class UserServiceImplIT {
         Pageable pageable = PageRequest.of(0, 10);
         Specification<User> spec = null;
 
-        int numbersUsers = 12;
-        Page<UserDTO> resultPage = userService.findAll(spec, pageable);
+        int numbersUsers = 1;
+        Page<UserDTO> resultPage = userService.findAll(spec, pageable, courseId);
         assertFalse(resultPage.isEmpty());
         assertEquals(numbersUsers, resultPage.getTotalElements());
     }
@@ -89,13 +90,14 @@ class UserServiceImplIT {
     @DisplayName("Giver UserId Correct When a User is deleted Then the Total User Count Should Decrease By One.")
     void givenUserIdCorrect_whenDeleteUser_ThenShouldDecreaseByOneUser() {
         UUID userId = UUID.fromString("3106c73c-5142-480b-8344-388610678971");
+        UUID courseId = UUID.fromString(("70754308-6ba1-469c-8de8-c3e7e28dc404"));
 
         PageRequest pageable = PageRequest.of(0, 10);
         Specification<User> spec = null;
-        long originalSize = userService.findAll(spec, pageable).getTotalElements();
+        long originalSize = userService.findAll(spec, pageable, courseId).getTotalElements();
 
         userService.delete(userId);
-        long newSize = userService.findAll(spec, pageable).getTotalElements();
+        long newSize = userService.findAll(spec, pageable, courseId).getTotalElements();
 
         assertEquals(originalSize - 1, newSize);
     }
