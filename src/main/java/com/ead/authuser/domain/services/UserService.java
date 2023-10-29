@@ -26,4 +26,5 @@ public interface UserService {
     UserDTO updatePassword(UUID userId, UpdatePassword updatePassword);
 
     UserDTO updateImage(UUID userId, UpdateImage updateImage);
+    User searchById(UUID userId);
 }

@@ -9,12 +9,9 @@ import java.util.UUID;
 @Service
 public class UtilServiceImpl implements UtilService {
 
-    String REQUEST_URI = "http://localhost:8082/api";
-
-
     @Override
     public String createUrl(UUID userId, Pageable pageable) {
-        return REQUEST_URI + "/courses?userId=" + userId + "&page=" + pageable.getPageNumber()
+        return "api/courses?userId=" + userId + "&page=" + pageable.getPageNumber()
                 + "&size=" + pageable.getPageSize() + "&sort=" + pageable.getSort().toString()
                 .replaceAll(": ", ",");
     }

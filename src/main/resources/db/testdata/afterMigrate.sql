@@ -28,5 +28,5 @@ INSERT INTO `user` (
 
   INSERT INTO `user_course` (`id`, `user_id`, `course_id`) VALUES
   ('1a2b3c4d-5e6f-7a8b-9c0d-1e2f3g4h5i6j', '3106c73c-5142-480b-8344-388610678971', '70754308-6ba1-469c-8de8-c3e7e28dc404'),
-  ('2b3c4d5e-6f7g-8h9i-0j1k-2l3m4n5o6p7q', '99735306-994d-46f9-82a7-4116145a5678', '9e9deb7c-6763-11ee-8c99-0242ac120002');
+  ('c9805b25-ab2f-404b-a3a4-e518656d131e', '99735306-994d-46f9-82a7-4116145a5678', '9e9deb7c-6763-11ee-8c99-0242ac120002');
 

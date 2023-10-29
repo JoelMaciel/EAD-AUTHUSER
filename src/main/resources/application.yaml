@@ -11,3 +11,7 @@ logging:
     ansi:
       enabled: ALWAYS
 
+ead:
+  api:
+    url:
+      course: 'http://localhost:8082'
