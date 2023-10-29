@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,8 +31,9 @@ public class UserCourseController {
     }
 
     @PostMapping("/subscription")
+    @ResponseStatus(HttpStatus.CREATED)
     public UserCourseDTO saveSubscriptionUserInCourse(@PathVariable UUID userId,
-                       @RequestBody @Valid UserCourseRequest userCourseRequest) {
+                                   @RequestBody @Valid UserCourseRequest userCourseRequest) {
         return userCourseService.save(userId, userCourseRequest);
     }
 }
