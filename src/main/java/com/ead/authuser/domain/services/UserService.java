@@ -1,9 +1,6 @@
 package com.ead.authuser.domain.services;
 
-import com.ead.authuser.api.dtos.request.UpdateImage;
-import com.ead.authuser.api.dtos.request.UpdatePassword;
-import com.ead.authuser.api.dtos.request.UserRequest;
-import com.ead.authuser.api.dtos.request.UserUpdateRequest;
+import com.ead.authuser.api.dtos.request.*;
 import com.ead.authuser.api.dtos.response.UserDTO;
 import com.ead.authuser.domain.models.User;
 import org.springframework.data.domain.Page;
@@ -27,4 +24,6 @@ public interface UserService {
 
     UserDTO updateImage(UUID userId, UpdateImage updateImage);
     User searchById(UUID userId);
+
+    UserDTO saveInstructor(InstructorRequest instructorRequest);
 }
