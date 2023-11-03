@@ -1,11 +1,9 @@
 package com.ead.authuser.domain.services.impl;
 
 import com.ead.authuser.api.controller.UserController;
-import com.ead.authuser.api.dtos.request.UpdateImage;
-import com.ead.authuser.api.dtos.request.UpdatePassword;
-import com.ead.authuser.api.dtos.request.UserRequest;
-import com.ead.authuser.api.dtos.request.UserUpdateRequest;
+import com.ead.authuser.api.dtos.request.*;
 import com.ead.authuser.api.dtos.response.UserDTO;
+import com.ead.authuser.api.specification.SpecificationTemplate;
 import com.ead.authuser.domain.enums.UserStatus;
 import com.ead.authuser.domain.enums.UserType;
 import com.ead.authuser.domain.exceptions.InvalidPasswordException;
@@ -35,11 +33,19 @@ public class UserServiceImpl implements UserService {
     private final UserValidationStrategy userValidationStrategy;
 
     @Override
-    public Page<UserDTO> findAll(Specification<User> spec, Pageable pageable) {
-        Page<User> users = userRepository.findAll(spec, pageable);
-        addHateoasLinks(users);
+    public Page<UserDTO> findAll(Specification<User> spec, Pageable pageable, UUID courseId) {
+        Page<User> usersPage = null;
+        if (courseId != null) {
+            usersPage = findAll(SpecificationTemplate.userCourseId(courseId).and(spec), pageable);
+        } else {
+            usersPage = userRepository.findAll(spec, pageable);
+        }
+        addHateoasLinks(usersPage);
+        return usersPage.map(UserDTO::toDTO);
+    }
 
-        return users.map(UserDTO::toDTO);
+    private Page<User> findAll(Specification<User> spec, Pageable pageable) {
+        return userRepository.findAll(spec, pageable);
     }
 
     @Override
@@ -62,6 +68,15 @@ public class UserServiceImpl implements UserService {
 
         return UserDTO.toDTO(userRepository.save(user));
 
+    }
+
+    @Override
+    public UserDTO saveInstructor(InstructorRequest instructorRequest) {
+        User user = searchById(instructorRequest.getUserId()).toBuilder()
+                .userType(UserType.INSTRUCTOR)
+                .build();
+
+        return UserDTO.toDTO(userRepository.save(user));
     }
 
     @Transactional
@@ -116,6 +131,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
     public User searchById(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
