@@ -9,5 +9,10 @@ import java.util.UUID;
 public interface UserCourseService {
 
     UserCourseDTO save(UUID userId, UserCourseRequest userCourseRequest);
+
     boolean existsByUserAndCourseId(User user, UUID courseId);
+
+    boolean existsByCourseId(UUID courseId);
+
+    void delete(UUID courseId);
 }

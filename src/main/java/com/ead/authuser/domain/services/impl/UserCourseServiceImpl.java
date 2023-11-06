@@ -2,6 +2,7 @@ package com.ead.authuser.domain.services.impl;
 
 import com.ead.authuser.api.dtos.request.UserCourseRequest;
 import com.ead.authuser.api.dtos.response.UserCourseDTO;
+import com.ead.authuser.domain.exceptions.CourseIdNotFoundException;
 import com.ead.authuser.domain.exceptions.ExistsUserAndCourseIdException;
 import com.ead.authuser.domain.models.User;
 import com.ead.authuser.domain.models.UserCourse;
@@ -33,8 +34,24 @@ public class UserCourseServiceImpl implements UserCourseService {
         return UserCourseDTO.toDTO(userCourseRepository.save(userCourse));
     }
 
+    @Transactional
+    @Override
+    public void delete(UUID courseId) {
+        if (!existsByCourseId(courseId)) {
+            throw new CourseIdNotFoundException();
+        }
+        userCourseRepository.deleteAllByCourseId(courseId);
+    }
+
+    @Override
+    public boolean existsByCourseId(UUID courseId) {
+        return userCourseRepository.existsByCourseId(courseId);
+    }
+
     @Override
     public boolean existsByUserAndCourseId(User user, UUID courseId) {
         return userCourseRepository.existsByUserAndCourseId(user, courseId);
     }
+
+
 }

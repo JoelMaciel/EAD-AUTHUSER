@@ -18,22 +18,27 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/users/{userId}/courses")
 public class UserCourseController {
 
     private final CourseClient courseClient;
     private final UserCourseService userCourseService;
 
-    @GetMapping
+    @GetMapping("api/users/{userId}/courses")
     public Page<CourseDTO> getAllCoursesByUser(@PageableDefault(page = 0, size = 10, sort = "courseId",
             direction = Sort.Direction.ASC) Pageable pageable, @PathVariable(value = "userId") UUID userId) {
         return courseClient.getAllCoursesByUser(userId, pageable);
     }
 
-    @PostMapping("/subscription")
+    @PostMapping("api/users/{userId}/courses/subscription")
     @ResponseStatus(HttpStatus.CREATED)
     public UserCourseDTO saveSubscriptionUserInCourse(@PathVariable UUID userId,
                                    @RequestBody @Valid UserCourseRequest userCourseRequest) {
         return userCourseService.save(userId, userCourseRequest);
+    }
+
+    @DeleteMapping("/api/users/courses/{courseId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUserCourseByCourse(@PathVariable UUID courseId) {
+        userCourseService.delete(courseId);
     }
 }
