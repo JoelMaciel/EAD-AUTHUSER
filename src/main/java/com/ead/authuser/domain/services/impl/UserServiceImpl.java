@@ -4,11 +4,13 @@ import com.ead.authuser.api.controller.UserController;
 import com.ead.authuser.api.dtos.request.*;
 import com.ead.authuser.api.dtos.response.UserDTO;
 import com.ead.authuser.api.specification.SpecificationTemplate;
+import com.ead.authuser.clients.CourseClient;
 import com.ead.authuser.domain.enums.UserStatus;
 import com.ead.authuser.domain.enums.UserType;
 import com.ead.authuser.domain.exceptions.InvalidPasswordException;
 import com.ead.authuser.domain.exceptions.UserNotFoundException;
 import com.ead.authuser.domain.models.User;
+import com.ead.authuser.domain.repositories.UserCourseRepository;
 import com.ead.authuser.domain.repositories.UserRepository;
 import com.ead.authuser.domain.services.UserService;
 import com.ead.authuser.domain.validator.UserValidationStrategy;
@@ -30,7 +32,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserCourseRepository userCourseRepository;
     private final UserValidationStrategy userValidationStrategy;
+    private final CourseClient courseClient;
 
     @Override
     public Page<UserDTO> findAll(Specification<User> spec, Pageable pageable, UUID courseId) {
@@ -111,7 +115,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(UUID userId) {
         searchById(userId);
+        if (existsUserIdAndUserCourse(userId)) {
+            courseClient.deleteUserInCourseUser(userId);
+        }
         userRepository.deleteById(userId);
+    }
+
+    @Override
+    public boolean existsUserIdAndUserCourse(UUID userId) {
+        return userCourseRepository.existsByUserId(userId);
     }
 
 

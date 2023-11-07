@@ -5,6 +5,7 @@ import com.ead.authuser.api.dtos.response.CourseDTO;
 import com.ead.authuser.api.dtos.response.UserCourseDTO;
 import com.ead.authuser.clients.CourseClient;
 import com.ead.authuser.domain.services.UserCourseService;
+import com.ead.authuser.domain.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,10 +23,12 @@ public class UserCourseController {
 
     private final CourseClient courseClient;
     private final UserCourseService userCourseService;
+    private final UserService userService;
 
     @GetMapping("api/users/{userId}/courses")
     public Page<CourseDTO> getAllCoursesByUser(@PageableDefault(page = 0, size = 10, sort = "courseId",
             direction = Sort.Direction.ASC) Pageable pageable, @PathVariable(value = "userId") UUID userId) {
+        userService.searchById(userId);
         return courseClient.getAllCoursesByUser(userId, pageable);
     }
 

@@ -52,6 +52,4 @@ public class UserCourseServiceImpl implements UserCourseService {
     public boolean existsByUserAndCourseId(User user, UUID courseId) {
         return userCourseRepository.existsByUserAndCourseId(user, courseId);
     }
-
-
 }

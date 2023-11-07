@@ -26,4 +26,5 @@ public interface UserService {
     User searchById(UUID userId);
 
     UserDTO saveInstructor(InstructorRequest instructorRequest);
+    boolean existsUserIdAndUserCourse(UUID userId);
 }
