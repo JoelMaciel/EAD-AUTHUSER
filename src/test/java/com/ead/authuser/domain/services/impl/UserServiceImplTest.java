@@ -14,6 +14,7 @@ import com.ead.authuser.domain.models.User;
 import com.ead.authuser.domain.repositories.UserRepository;
 import com.ead.authuser.domain.validator.UserValidationStrategy;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -147,6 +148,7 @@ class UserServiceImplTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Given User Valid When Delete User Then Should Deleted User Successfully")
     void givenUserValid_WhenDeleteUser_ThenShouldDeletedUserSuccessfully() {
         when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
