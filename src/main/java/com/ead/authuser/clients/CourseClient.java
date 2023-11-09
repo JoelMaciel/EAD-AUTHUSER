@@ -34,7 +34,7 @@ public class CourseClient {
         List<CourseDTO> courseDTOS = null;
         ResponseEntity<ResponsePageDTO<CourseDTO>> result = null;
 
-        String url = REQUEST_URL_COURSE +  utilService.createUrl(userId, pageable);
+        String url = REQUEST_URL_COURSE + utilService.createUrl(userId, pageable);
 
         log.debug("Request URL: {} ", url);
         log.info("Request URL: {} ", url);
@@ -54,5 +54,10 @@ public class CourseClient {
         }
         log.info("Ending request /course userId {} ", userId);
         return result.getBody();
+    }
+
+    public void deleteUserInCourseUser(UUID userId) {
+        String url = REQUEST_URL_COURSE + "/api/courses/users/" + userId;
+        restTemplate.exchange(url, HttpMethod.DELETE, null, String.class);
     }
 }
