@@ -2,7 +2,6 @@ package com.ead.authuser.domain.models;
 
 import com.ead.authuser.domain.enums.UserStatus;
 import com.ead.authuser.domain.enums.UserType;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
@@ -12,7 +11,6 @@ import org.springframework.hateoas.RepresentationModel;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -49,8 +47,4 @@ public class User extends RepresentationModel<User> implements Serializable {
 
     @UpdateTimestamp
     private LocalDateTime updateDate;
-
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private Set<UserCourse> usersCourses;
 }

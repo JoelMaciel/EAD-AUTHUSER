@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.UUID;
 
 public interface UserService {
-    Page<UserDTO> findAll(Specification<User> spec, Pageable pageable, UUID courseId);
+    Page<UserDTO> findAll(Specification<User> spec, Pageable pageable);
 
     UserDTO findById(UUID userId);
 
@@ -23,8 +23,9 @@ public interface UserService {
     UserDTO updatePassword(UUID userId, UpdatePassword updatePassword);
 
     UserDTO updateImage(UUID userId, UpdateImage updateImage);
+
     User searchById(UUID userId);
 
     UserDTO saveInstructor(InstructorRequest instructorRequest);
-    boolean existsUserIdAndUserCourse(UUID userId);
+
 }
