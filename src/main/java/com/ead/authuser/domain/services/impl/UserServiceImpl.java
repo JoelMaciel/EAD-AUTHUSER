@@ -1,10 +1,13 @@
 package com.ead.authuser.domain.services.impl;
 
 import com.ead.authuser.api.controller.UserController;
+import com.ead.authuser.api.dtos.event.UserEventDTO;
 import com.ead.authuser.api.dtos.request.*;
 import com.ead.authuser.api.dtos.response.UserDTO;
+import com.ead.authuser.api.publishers.UserEventPublisher;
 import com.ead.authuser.api.specification.SpecificationTemplate;
 import com.ead.authuser.clients.CourseClient;
+import com.ead.authuser.domain.enums.ActionType;
 import com.ead.authuser.domain.enums.UserStatus;
 import com.ead.authuser.domain.enums.UserType;
 import com.ead.authuser.domain.exceptions.InvalidPasswordException;
@@ -32,7 +35,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserValidationStrategy userValidationStrategy;
-    private final CourseClient courseClient;
+    private final UserEventPublisher userEventPublisher;
 
     @Override
     public Page<UserDTO> findAll(Specification<User> spec, Pageable pageable) {
@@ -63,6 +66,14 @@ public class UserServiceImpl implements UserService {
 
         return UserDTO.toDTO(userRepository.save(user));
 
+    }
+
+    @Transactional
+    @Override
+    public UserDTO saveUserEvent(UserRequest userRequest) {
+        UserDTO userDTO = save(userRequest);
+        userEventPublisher.publisherUserEvent(UserEventDTO.toUserEvent(userDTO), ActionType.CREATE);
+        return userDTO;
     }
 
     @Override

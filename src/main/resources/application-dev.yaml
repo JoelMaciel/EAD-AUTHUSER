@@ -26,3 +26,24 @@ spring:
   web:
     resources:
       add-mappings: false
+
+ead:
+  api:
+    url:
+      course: 'http://ead-course-service/ead-course'
+  broker:
+    exchange:
+      userEvent: ead.userevent
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: 'http://localhost:8761/eureka'
+  instance:
+    hostname: localhost
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest

@@ -17,6 +17,7 @@ public interface UserService {
     void delete(UUID userId);
 
     UserDTO save(UserRequest userRequest);
+    UserDTO saveUserEvent(UserRequest userRequest);
 
     UserDTO update(UUID userId, UserUpdateRequest userRequest);
 
