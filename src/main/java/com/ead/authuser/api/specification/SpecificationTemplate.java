@@ -1,15 +1,11 @@
 package com.ead.authuser.api.specification;
 
 import com.ead.authuser.domain.models.User;
-import com.ead.authuser.domain.models.UserCourse;
 import net.kaczmarzyk.spring.data.jpa.domain.Equal;
 import net.kaczmarzyk.spring.data.jpa.domain.Like;
 import net.kaczmarzyk.spring.data.jpa.web.annotation.And;
 import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
 import org.springframework.data.jpa.domain.Specification;
-
-import javax.persistence.criteria.Join;
-import java.util.UUID;
 
 public class SpecificationTemplate {
     @And({
@@ -19,14 +15,6 @@ public class SpecificationTemplate {
             @Spec(path = "fullName", spec = Like.class)
     })
     public interface UserSpec extends Specification<User> {
-    }
-
-    public static Specification<User> userCourseId(final UUID courseId) {
-        return (root, query, cb) -> {
-            query.distinct(true);
-            Join<User, UserCourse> userProd = root.join("usersCourses");
-            return cb.equal(userProd.get("courseId"), courseId);
-        };
     }
 }
 

@@ -63,7 +63,7 @@ class UserServiceImplIT {
         Specification<User> spec = null;
 
         int numbersUsers = 1;
-        Page<UserDTO> resultPage = userService.findAll(spec, pageable, courseId);
+        Page<UserDTO> resultPage = userService.findAll(spec, pageable);
         assertFalse(resultPage.isEmpty());
         assertEquals(numbersUsers, resultPage.getTotalElements());
     }
@@ -81,7 +81,8 @@ class UserServiceImplIT {
     @DisplayName("Given a non-existent user ID When calling FindById method Then you must throw Exception")
     void givenANonExistsUserId_WhenCallingFindByIdMethod_ThenYouMustThrowException() {
         UUID userId = UUID.randomUUID();
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userService.findById(userId));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+                () -> userService.findById(userId));
         assertEquals(exception.getMessage(), "There is no code user " + userId + " in the database.");
 
     }
@@ -94,10 +95,10 @@ class UserServiceImplIT {
 
         PageRequest pageable = PageRequest.of(0, 10);
         Specification<User> spec = null;
-        long originalSize = userService.findAll(spec, pageable, courseId).getTotalElements();
+        long originalSize = userService.findAll(spec, pageable).getTotalElements();
 
         userService.delete(userId);
-        long newSize = userService.findAll(spec, pageable, courseId).getTotalElements();
+        long newSize = userService.findAll(spec, pageable).getTotalElements();
 
         assertEquals(originalSize - 1, newSize);
     }

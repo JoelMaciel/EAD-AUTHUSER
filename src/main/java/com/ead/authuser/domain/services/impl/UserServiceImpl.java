@@ -10,7 +10,6 @@ import com.ead.authuser.domain.enums.UserType;
 import com.ead.authuser.domain.exceptions.InvalidPasswordException;
 import com.ead.authuser.domain.exceptions.UserNotFoundException;
 import com.ead.authuser.domain.models.User;
-import com.ead.authuser.domain.repositories.UserCourseRepository;
 import com.ead.authuser.domain.repositories.UserRepository;
 import com.ead.authuser.domain.services.UserService;
 import com.ead.authuser.domain.validator.UserValidationStrategy;
@@ -32,24 +31,16 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final UserCourseRepository userCourseRepository;
     private final UserValidationStrategy userValidationStrategy;
     private final CourseClient courseClient;
 
     @Override
-    public Page<UserDTO> findAll(Specification<User> spec, Pageable pageable, UUID courseId) {
+    public Page<UserDTO> findAll(Specification<User> spec, Pageable pageable) {
         Page<User> usersPage = null;
-        if (courseId != null) {
-            usersPage = findAll(SpecificationTemplate.userCourseId(courseId).and(spec), pageable);
-        } else {
-            usersPage = userRepository.findAll(spec, pageable);
-        }
+        usersPage = userRepository.findAll(spec, pageable);
+
         addHateoasLinks(usersPage);
         return usersPage.map(UserDTO::toDTO);
-    }
-
-    private Page<User> findAll(Specification<User> spec, Pageable pageable) {
-        return userRepository.findAll(spec, pageable);
     }
 
     @Override
@@ -115,17 +106,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(UUID userId) {
         searchById(userId);
-        if (existsUserIdAndUserCourse(userId)) {
-            courseClient.deleteUserInCourseUser(userId);
-        }
         userRepository.deleteById(userId);
     }
-
-    @Override
-    public boolean existsUserIdAndUserCourse(UUID userId) {
-        return userCourseRepository.existsByUserId(userId);
-    }
-
 
     private User validateUserPassword(UUID userId, UpdatePassword updatePassword) {
         User user = searchById(userId);

@@ -1,20 +1,17 @@
 package com.ead.authuser.api.controller;
 
-import com.ead.authuser.api.dtos.request.UserCourseRequest;
 import com.ead.authuser.api.dtos.response.CourseDTO;
-import com.ead.authuser.api.dtos.response.UserCourseDTO;
 import com.ead.authuser.clients.CourseClient;
-import com.ead.authuser.domain.services.UserCourseService;
 import com.ead.authuser.domain.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController
@@ -22,7 +19,6 @@ import java.util.UUID;
 public class UserCourseController {
 
     private final CourseClient courseClient;
-    private final UserCourseService userCourseService;
     private final UserService userService;
 
     @GetMapping("api/users/{userId}/courses")
@@ -30,18 +26,5 @@ public class UserCourseController {
             direction = Sort.Direction.ASC) Pageable pageable, @PathVariable(value = "userId") UUID userId) {
         userService.searchById(userId);
         return courseClient.getAllCoursesByUser(userId, pageable);
-    }
-
-    @PostMapping("api/users/{userId}/courses/subscription")
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserCourseDTO saveSubscriptionUserInCourse(@PathVariable UUID userId,
-                                   @RequestBody @Valid UserCourseRequest userCourseRequest) {
-        return userCourseService.save(userId, userCourseRequest);
-    }
-
-    @DeleteMapping("/api/users/courses/{courseId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUserCourseByCourse(@PathVariable UUID courseId) {
-        userCourseService.delete(courseId);
     }
 }
