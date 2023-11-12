@@ -21,6 +21,6 @@ public class AuthenticationController {
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
     public UserDTO registerUser(@RequestBody @Valid UserRequest userRequest) {
-        return userService.saveUserEvent(userRequest);
+        return userService.save(userRequest);
     }
 }
