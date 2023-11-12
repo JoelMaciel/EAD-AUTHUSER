@@ -16,3 +16,11 @@
 -  OPEN API , SWAGGER , HATEOAS
 -  SPRING SECURITY, JWT , SPRING DATA JPA
 -  MYSQL
+-  
+## Request Images
+
+
+#### Microservice AuthUser registered in Service Discovery Eureka and exchange in RabbitMQ
+
+![Captura de tela de 2023-11-12 20-41-16](https://github.com/JoelMaciel/EAD-COURSE/assets/77079093/a2dd17f6-f001-4350-9698-779858d7b7c9)
+![Captura de tela de 2023-11-12 20-41-51](https://github.com/JoelMaciel/EAD-COURSE/assets/77079093/22b1d265-8b0b-4adf-8dca-b07229710965)
