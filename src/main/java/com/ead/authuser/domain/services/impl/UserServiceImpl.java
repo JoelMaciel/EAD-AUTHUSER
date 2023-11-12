@@ -5,8 +5,6 @@ import com.ead.authuser.api.dtos.event.UserEventDTO;
 import com.ead.authuser.api.dtos.request.*;
 import com.ead.authuser.api.dtos.response.UserDTO;
 import com.ead.authuser.api.publishers.UserEventPublisher;
-import com.ead.authuser.api.specification.SpecificationTemplate;
-import com.ead.authuser.clients.CourseClient;
 import com.ead.authuser.domain.enums.ActionType;
 import com.ead.authuser.domain.enums.UserStatus;
 import com.ead.authuser.domain.enums.UserType;
@@ -63,17 +61,10 @@ public class UserServiceImpl implements UserService {
                 .creationDate(LocalDateTime.now())
                 .updateDate(LocalDateTime.now())
                 .build();
-
-        return UserDTO.toDTO(userRepository.save(user));
-
-    }
-
-    @Transactional
-    @Override
-    public UserDTO saveUserEvent(UserRequest userRequest) {
-        UserDTO userDTO = save(userRequest);
+        UserDTO userDTO = UserDTO.toDTO(userRepository.save(user));
         userEventPublisher.publisherUserEvent(UserEventDTO.toUserEvent(userDTO), ActionType.CREATE);
         return userDTO;
+
     }
 
     @Override
@@ -81,8 +72,9 @@ public class UserServiceImpl implements UserService {
         User user = searchById(instructorRequest.getUserId()).toBuilder()
                 .userType(UserType.INSTRUCTOR)
                 .build();
-
-        return UserDTO.toDTO(userRepository.save(user));
+        UserDTO userDTO = UserDTO.toDTO(userRepository.save(user));
+        userEventPublisher.publisherUserEvent(UserEventDTO.toUserEvent(userDTO), ActionType.UPDATE);
+        return userDTO;
     }
 
     @Transactional
@@ -93,8 +85,9 @@ public class UserServiceImpl implements UserService {
                 .fullName(userRequest.getFullName())
                 .phoneNumber(userRequest.getPhoneNumber())
                 .build();
-
-        return UserDTO.toDTO(userRepository.save(user));
+        UserDTO userDto = UserDTO.toDTO(userRepository.save(user));
+        userEventPublisher.publisherUserEvent(UserEventDTO.toUserEvent(userDto), ActionType.UPDATE);
+        return userDto;
     }
 
     @Transactional
@@ -109,15 +102,17 @@ public class UserServiceImpl implements UserService {
     public UserDTO updateImage(UUID userId, UpdateImage updateImage) {
         User user = searchById(userId).toBuilder()
                 .imageUrl(updateImage.getImageUrl()).build();
-
-        return UserDTO.toDTO(userRepository.save(user));
+        UserDTO userDTO = UserDTO.toDTO(userRepository.save(user));
+        userEventPublisher.publisherUserEvent(UserEventDTO.toUserEvent(userDTO), ActionType.UPDATE);
+        return userDTO;
     }
 
     @Transactional
     @Override
     public void delete(UUID userId) {
-        searchById(userId);
-        userRepository.deleteById(userId);
+        User user = searchById(userId);
+        userRepository.delete(user);
+        userEventPublisher.publisherUserEvent(UserEventDTO.toUserEvent(UserDTO.toDTO(user)), ActionType.DELETE);
     }
 
     private User validateUserPassword(UUID userId, UpdatePassword updatePassword) {

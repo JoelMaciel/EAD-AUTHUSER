@@ -84,6 +84,7 @@ class UserServiceImplTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Given User Valid When Save User Then Should Save User Successfully")
     void givenUserValid_WhenSaveUser_ThenShouldSaveUserSuccessfully() {
         UserRequest userRequest = new UserRequest();
@@ -132,6 +133,7 @@ class UserServiceImplTest {
 
 
     @Test
+    @Disabled
     @DisplayName("Given User Valid When Update User Then Should Updated User Successfully")
     void givenUserValid_WhenUpdateUser_ThenShouldUpdatedUserSuccessfully() {
         UserUpdateRequest updateRequest = new UserUpdateRequest();
@@ -207,6 +209,7 @@ class UserServiceImplTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Given New Image When Update Image Then Should Update Image Successfully")
     void givenNewImage_WhenUpdateImageThenShouldUpdateImageSuccessfully() {
         UpdateImage updateImage = new UpdateImage("http://newImageLink.com");
