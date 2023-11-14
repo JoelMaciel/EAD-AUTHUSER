@@ -1,11 +1,12 @@
 package com.ead.authuser.domain.services.impl;
 
 
-import com.ead.authuser.api.dtos.request.UpdateImage;
-import com.ead.authuser.api.dtos.request.UpdatePassword;
-import com.ead.authuser.api.dtos.request.UserRequest;
-import com.ead.authuser.api.dtos.request.UserUpdateRequest;
+import com.ead.authuser.api.dtos.event.UserEventDTO;
+import com.ead.authuser.api.dtos.request.*;
 import com.ead.authuser.api.dtos.response.UserDTO;
+import com.ead.authuser.api.publishers.UserEventPublisher;
+import com.ead.authuser.api.specification.SpecificationTemplate;
+import com.ead.authuser.domain.enums.ActionType;
 import com.ead.authuser.domain.enums.UserStatus;
 import com.ead.authuser.domain.enums.UserType;
 import com.ead.authuser.domain.exceptions.InvalidPasswordException;
@@ -14,7 +15,6 @@ import com.ead.authuser.domain.models.User;
 import com.ead.authuser.domain.repositories.UserRepository;
 import com.ead.authuser.domain.validator.UserValidationStrategy;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +25,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
@@ -47,22 +46,36 @@ class UserServiceImplTest {
     private UserRepository userRepository;
 
     @Mock
+    private UserEventPublisher userEventPublisher;
+
+    @Mock
     private UserValidationStrategy userValidationStrategy;
 
     private User user;
+    private UserDTO userDTO;
 
     @BeforeEach
     public void setUp() {
         user = new User();
         user = User.builder()
                 .userId(UUID.randomUUID())
-                .username("joelmaciel")
-                .email("joel@example.com")
+                .username("joelmacieltest")
+                .email("joelteste@example.com")
                 .password("123456")
                 .userStatus(UserStatus.ACTIVE)
                 .userType(UserType.STUDENT)
                 .creationDate(LocalDateTime.now())
                 .updateDate(LocalDateTime.now())
+                .build();
+
+
+        userDTO = UserDTO.builder()
+                .userId(user.getUserId())
+                .username("exampleUsername")
+                .email("example@example.com")
+                .fullName("Example Full Name")
+                .userType(UserType.STUDENT)
+                .userStatus(UserStatus.ACTIVE)
                 .build();
     }
 
@@ -84,7 +97,6 @@ class UserServiceImplTest {
     }
 
     @Test
-    @Disabled
     @DisplayName("Given User Valid When Save User Then Should Save User Successfully")
     void givenUserValid_WhenSaveUser_ThenShouldSaveUserSuccessfully() {
         UserRequest userRequest = new UserRequest();
@@ -97,22 +109,42 @@ class UserServiceImplTest {
         assertNotNull(userService.save(userRequest));
         verify(userRepository).save(any(User.class));
     }
+
     @Test
-    @Disabled
-    @DisplayName("Given Specification and Pageable, When findAll is called, Then Should Return Page of Users")
-    void givenSpecAndPageable_WhenFindAll_ThenReturnPageOfUsers() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<User> userPage = new PageImpl<>(List.of(user), pageable, 1);
+    @DisplayName("Given InstructorRequest When SaveInstructor is Invoked, Then Should Save User as Instructor")
+    void givenInstructorRequest_whenSaveInstructor_thenReturnUserAsInstructor() {
+        InstructorRequest instructorRequest = new InstructorRequest();
+        instructorRequest.setUserId(user.getUserId());
 
-        when(userRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(userPage);
+        user.setUserType(UserType.INSTRUCTOR);
 
-        Page<UserDTO> result = userService.findAll(null, pageable);
+        when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        UserDTO result = userService.saveInstructor(instructorRequest);
 
         assertNotNull(result);
-        verify(userRepository).findAll(any(Specification.class), eq(pageable));
-        assertEquals(1, result.getTotalElements());
+        assertEquals(UserType.INSTRUCTOR, result.getUserType());
+        verify(userRepository).save(any(User.class));
+        verify(userEventPublisher).publisherUserEvent(any(UserEventDTO.class), eq(ActionType.UPDATE));
     }
 
+
+    @Test
+    @DisplayName("Given UserSpec and Pageable, When findAll is called, Then Should Return Page of UserDTOs")
+    void givenUserSpecAndPageable_WhenFindAll_ThenReturnPageOfUserDTOs() {
+        Pageable pageable = PageRequest.of(0, 10);
+        SpecificationTemplate.UserSpec userSpec = mock(SpecificationTemplate.UserSpec.class);
+        Page<User> userPage = new PageImpl<>(List.of(user), pageable, 1);
+
+        when(userRepository.findAll(any(SpecificationTemplate.UserSpec.class), eq(pageable))).thenReturn(userPage);
+
+        Page<UserDTO> result = userService.findAll(userSpec, pageable);
+
+        assertNotNull(result);
+        verify(userRepository).findAll(any(SpecificationTemplate.UserSpec.class), eq(pageable));
+        assertEquals(1, result.getTotalElements());
+    }
 
 
     @Test
@@ -133,7 +165,6 @@ class UserServiceImplTest {
 
 
     @Test
-    @Disabled
     @DisplayName("Given User Valid When Update User Then Should Updated User Successfully")
     void givenUserValid_WhenUpdateUser_ThenShouldUpdatedUserSuccessfully() {
         UserUpdateRequest updateRequest = new UserUpdateRequest();
@@ -150,16 +181,18 @@ class UserServiceImplTest {
     }
 
     @Test
-    @Disabled
     @DisplayName("Given User Valid When Delete User Then Should Deleted User Successfully")
     void givenUserValid_WhenDeleteUser_ThenShouldDeletedUserSuccessfully() {
-        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
+        when(userRepository.findById(eq(user.getUserId()))).thenReturn(Optional.of(user));
+
+        doNothing().when(userEventPublisher).publisherUserEvent(any(UserEventDTO.class), any(ActionType.class));
 
         userService.delete(user.getUserId());
 
         verify(userRepository).findById(user.getUserId());
-        verify(userRepository).deleteById(user.getUserId());
+        verify(userRepository).delete(user);
     }
+
 
     @Test
     @DisplayName("Given User Does Not Exists When Delete User Then Throw Exception")
@@ -209,7 +242,6 @@ class UserServiceImplTest {
     }
 
     @Test
-    @Disabled
     @DisplayName("Given New Image When Update Image Then Should Update Image Successfully")
     void givenNewImage_WhenUpdateImageThenShouldUpdateImageSuccessfully() {
         UpdateImage updateImage = new UpdateImage("http://newImageLink.com");

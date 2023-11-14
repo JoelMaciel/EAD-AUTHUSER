@@ -37,8 +37,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<UserDTO> findAll(Specification<User> spec, Pageable pageable) {
-        Page<User> usersPage = null;
-        usersPage = userRepository.findAll(spec, pageable);
+        Page<User> usersPage = userRepository.findAll(spec, pageable);
 
         addHateoasLinks(usersPage);
         return usersPage.map(UserDTO::toDTO);
@@ -68,7 +67,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO saveInstructor(InstructorRequest instructorRequest) {
+
+  public UserDTO saveInstructor(InstructorRequest instructorRequest) {
         User user = searchById(instructorRequest.getUserId()).toBuilder()
                 .userType(UserType.INSTRUCTOR)
                 .build();
@@ -76,7 +76,6 @@ public class UserServiceImpl implements UserService {
         userEventPublisher.publisherUserEvent(UserEventDTO.toUserEvent(userDTO), ActionType.UPDATE);
         return userDTO;
     }
-
     @Transactional
     @Override
     public UserDTO update(UUID userId, UserUpdateRequest userRequest) {

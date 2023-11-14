@@ -1,10 +1,8 @@
 package com.ead.authuser.domain.services.impl;
 
-import com.ead.authuser.api.dtos.request.UpdateImage;
-import com.ead.authuser.api.dtos.request.UpdatePassword;
-import com.ead.authuser.api.dtos.request.UserRequest;
-import com.ead.authuser.api.dtos.request.UserUpdateRequest;
+import com.ead.authuser.api.dtos.request.*;
 import com.ead.authuser.api.dtos.response.UserDTO;
+import com.ead.authuser.containers.DatabaseContainerConfiguration;
 import com.ead.authuser.domain.enums.UserStatus;
 import com.ead.authuser.domain.enums.UserType;
 import com.ead.authuser.domain.exceptions.InvalidPasswordException;
@@ -13,22 +11,27 @@ import com.ead.authuser.domain.models.User;
 import com.ead.authuser.domain.repositories.UserRepository;
 import com.ead.authuser.domain.validator.UserValidationStrategy;
 import com.ead.authuser.util.UserObjectFactory;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+
+@Testcontainers
+@Import(DatabaseContainerConfiguration.class)
 @SpringBootTest
 @ActiveProfiles("test")
 class UserServiceImplIT {
@@ -43,8 +46,8 @@ class UserServiceImplIT {
     private User user;
     private User user2;
 
+
     @Test
-    @Disabled
     @DisplayName("Given Page of User When findAll is Invoked, Then should return a non-empty Page of Users.")
     void whenFindAll_thenReturnPageOfUsers() {
         UUID courseId = UUID.fromString(("70754308-6ba1-469c-8de8-c3e7e28dc404"));
@@ -62,7 +65,7 @@ class UserServiceImplIT {
         Pageable pageable = PageRequest.of(0, 10);
         Specification<User> spec = null;
 
-        int numbersUsers = 1;
+        int numbersUsers = 9;
         Page<UserDTO> resultPage = userService.findAll(spec, pageable);
         assertFalse(resultPage.isEmpty());
         assertEquals(numbersUsers, resultPage.getTotalElements());
@@ -91,7 +94,6 @@ class UserServiceImplIT {
     @DisplayName("Giver UserId Correct When a User is deleted Then the Total User Count Should Decrease By One.")
     void givenUserIdCorrect_whenDeleteUser_ThenShouldDecreaseByOneUser() {
         UUID userId = UUID.fromString("3106c73c-5142-480b-8344-388610678971");
-        UUID courseId = UUID.fromString(("70754308-6ba1-469c-8de8-c3e7e28dc404"));
 
         PageRequest pageable = PageRequest.of(0, 10);
         Specification<User> spec = null;
@@ -124,6 +126,27 @@ class UserServiceImplIT {
         assertNotNull(userService.findById(userDTO.getUserId()));
         assertThat(userDTO).isNotNull();
 
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("Given InstructorRequest When saveInstructor is Invoked, Then User Should Be Updated To Instructor")
+    void givenInstructorRequest_whenSaveInstructor_thenUserShouldBeUpdatedToInstructor() {
+        UserRequest userRequest = UserObjectFactory.createUserRequest("johnDoetes", "johntes@example.com", "1233245678",
+                "12346", "John Doetest", "55555555", "http://example.com/johntest.jpg");
+        User user = UserObjectFactory.convertToUser(userRequest, UserStatus.ACTIVE, UserType.STUDENT);
+        User savedUser = userRepository.save(user);
+
+        assertNotNull(savedUser);
+        assertEquals(savedUser.getUserId(), user.getUserId());
+
+        InstructorRequest instructorRequest = new InstructorRequest();
+        instructorRequest.setUserId(user.getUserId());
+        UserDTO updatedUserDTO = userService.saveInstructor(instructorRequest);
+
+        User updatedUser = userRepository.findById(user.getUserId()).orElseThrow();
+        assertEquals(UserType.INSTRUCTOR, updatedUser.getUserType());
+        assertEquals(UserType.INSTRUCTOR, updatedUserDTO.getUserType());
     }
 
     @Test
