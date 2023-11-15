@@ -26,7 +26,6 @@ public class UserObjectFactory {
 
     public static User convertToUser(UserRequest userRequest, UserStatus userStatus, UserType userType) {
         return UserRequest.toEntity(userRequest).toBuilder()
-                .userId(UUID.randomUUID())
                 .userStatus(userStatus)
                 .userType(userType)
                 .creationDate(LocalDateTime.now())
